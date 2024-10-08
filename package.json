@@ -1,0 +1,20 @@
+{
+    "name": "three-body-problem-simulation",
+    "version": "1.0.0",
+    "description": "A simulation of the three-body problem using JavaScript and HTML5 Canvas",
+    "main": "script.js",
+    "scripts": {
+        "start": "open index.html"
+    },
+    "keywords": [
+        "three-body-problem",
+        "physics",
+        "simulation",
+        "canvas",
+        "javascript"
+    ],
+    "author": "Riccardo Civiero",
+    "license": "MIT",
+    "dependencies": {},
+    "devDependencies": {}
+}
