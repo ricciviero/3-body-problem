@@ -2,6 +2,10 @@
 
 This project is a simulation of the three-body problem, a classic problem in physics that describes the motion of three celestial bodies under mutual gravitational attraction. This implementation uses JavaScript and HTML5 Canvas to visualize the gravitational interactions between three bodies in a 2D space.
 
+## Test this app on Netlify
+
+[Three-Body Problem Simulation](https://3-body-problem.netlify.app)
+
 ## Features
 
 - **Real-time Simulation**: The positions and velocities of the bodies are updated in real time based on gravitational forces.
