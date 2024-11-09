@@ -25,12 +25,12 @@ This project is a simulation of the three-body problem, a classic problem in phy
 
 1. **Clone the Repository**: Start by cloning the repository to your local machine.
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ricciviero/3-body-problem.git
    ```
 
 2. **Navigate to the Project Directory**:
    ```bash
-   cd <project-directory>
+   cd 3-body-problem
    ```
 
 3. **Open `index.html` in a Browser**: Open the `index.html` file in a web browser to view and interact with the simulation.
