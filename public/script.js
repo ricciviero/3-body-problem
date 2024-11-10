@@ -7,7 +7,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight * 0.9;
 
 // Increase the gravitational constant for greater force
-const G = 2000;
+const G = 2700;
 
 // Define fluorescent colors with glow effects
 const bodyColors = [
@@ -38,17 +38,28 @@ function randomInRange(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-// Function to draw stars with slight twinkling effect
-function drawStars() {
-    const starCount = 200;
+// Array to store star positions
+const stars = [];
+
+// Function to initialize stars
+function initializeStars() {
+    const starCount = 1600;
     for (let i = 0; i < starCount; i++) {
-        let x = Math.random() * canvas.width;
-        let y = Math.random() * canvas.height;
-        let size = Math.random() * 2;
-        // Add slight random opacity for twinkling effect
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.random() * 0.7})`;
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2,
+            opacity: 0.3 + Math.random() * 0.7
+        });
+    }
+}
+
+// Function to draw stars (fixed background)
+function drawStars() {
+    for (let star of stars) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, 2 * Math.PI);
+        ctx.arc(star.x, star.y, star.size, 0, 2 * Math.PI);
         ctx.fill();
     }
 }
@@ -57,7 +68,14 @@ function drawStars() {
 function gravitationalForce(p1, p2, m1, m2) {
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Evita che la distanza diventi troppo piccola (valore minimo di sicurezza)
+    const minDistance = 50; // Valore minimo per evitare collisioni, puoi regolarlo
+    if (distance < minDistance) {
+        distance = minDistance;
+    }
+
     const forceMagnitude = G * m1 * m2 / (distance * distance);
     return {
         x: forceMagnitude * dx / distance,
@@ -169,8 +187,8 @@ function simulate() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw stars (less frequently to improve performance)
-    if (Math.random() < 0.1) drawStars();
+    // Draw stars (only called once at initialization)
+    drawStars();
 
     // Update positions
     updatePositionsAndVelocities(positions, velocities, dt);
@@ -187,7 +205,9 @@ function simulate() {
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight * 0.9;
+    drawStars(); // Redraw stars on resize
 });
 
-// Start the simulation
-simulate();
+// Initialize and start the simulation
+initializeStars(); // Initialize star positions once
+simulate(); // Start the simulation
