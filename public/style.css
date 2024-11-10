@@ -20,7 +20,6 @@ html {
     padding: 0;
     box-sizing: border-box;
     overflow: hidden;
-    /* Per evitare lo scrolling */
     width: 100%;
     height: 100%;
 }
@@ -76,7 +75,6 @@ body {
     color: #00ffff;
 }
 
-
 /* Canvas */
 canvas {
     width: 100%;
@@ -86,7 +84,6 @@ canvas {
     top: 0;
     left: 0;
     z-index: -1;
-    /* Metti il canvas dietro al resto del contenuto */
 }
 
 /* Layout Container */
@@ -233,7 +230,8 @@ h1::after {
     }
 
     canvas {
-        height: 60vh;
+        height: 100vh;
+        position: relative;
         margin-bottom: var(--spacing-md);
     }
 }
@@ -252,16 +250,17 @@ h1::after {
     }
 
     canvas {
-        height: 50vh;
+        height: 100vh;
     }
 
     .site-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
     }
 
     .header-right {
         margin-top: 0.5rem;
+        justify-content: center;
     }
 }
 
