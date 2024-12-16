@@ -61,7 +61,6 @@ body {
     display: flex;
     gap: 1.5rem;
     margin-right: 8rem;
-    /* Aggiunto margine destro per allontanare i link dal bordo */
 }
 
 .header-link {
@@ -175,7 +174,6 @@ h1::after {
     0% {
         background-position: 200% center;
     }
-
     100% {
         background-position: -200% center;
     }
@@ -228,6 +226,7 @@ h1::after {
         gap: 1rem;
         margin-top: 0.5rem;
         justify-content: center;
+        margin-right: 0;
     }
 
     h1 {
@@ -268,9 +267,7 @@ h1::after {
     .header-right {
         gap: 0.5rem;
         justify-content: center;
-        /* Centra i link */
         width: 100%;
-        /* Assicura che i link si distribuiscano centralmente */
         display: flex;
     }
 
