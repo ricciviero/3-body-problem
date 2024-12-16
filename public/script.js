@@ -6,24 +6,33 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight * 0.9;
 
-// Increase the gravitational constant for greater force
-const G = 2700;
+// Replace the constant G and mass declarations with let
+let G = 5000;
+let m1 = 3;
+let m2 = 8;
+let m3 = 5;
 
 // Define fluorescent colors with glow effects
 const bodyColors = [
-    { main: '#00ff00', glow: 'rgba(0, 255, 0, 0.5)' },    // Verde fluorescente
-    { main: '#ff00ff', glow: 'rgba(255, 0, 255, 0.5)' },  // Magenta fluorescente
-    { main: '#00ffff', glow: 'rgba(0, 255, 255, 0.5)' }   // Ciano fluorescente
+    { main: '#FF0000', glow: 'rgba(255, 0, 0, 0.5)' },    // Verde fluorescente
+    { main: '#FBFF00', glow: 'rgba(251, 255, 0, 0.5)' },  // Magenta fluorescente
+    { main: '#2600FF', glow: 'rgba(38, 0, 255, 0.5)' }   // Ciano fluorescente
 ];
-
-// Masses of the bodies
-const m1 = 1, m2 = 1, m3 = 1;
 
 // Random initial positions of the bodies
 let positions = [
-    { x: randomInRange(200, 600), y: randomInRange(200, 600) },
-    { x: randomInRange(200, 600), y: randomInRange(200, 600) },
-    { x: randomInRange(200, 600), y: randomInRange(200, 600) }
+    {
+        x: canvas.width / 2 + randomInRange(-100, 100),
+        y: canvas.height / 2 + randomInRange(-100, 100)
+    },
+    {
+        x: canvas.width / 2 + randomInRange(-100, 100),
+        y: canvas.height / 2 + randomInRange(-100, 100)
+    },
+    {
+        x: canvas.width / 2 + randomInRange(-100, 100),
+        y: canvas.height / 2 + randomInRange(-100, 100)
+    }
 ];
 
 // Random initial velocities of the bodies
@@ -65,18 +74,17 @@ function drawStars() {
 }
 
 // Function to calculate the gravitational force
-function gravitationalForce(p1, p2, m1, m2) {
+function gravitationalForce(p1, p2, mass1, mass2) {
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
     let distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Evita che la distanza diventi troppo piccola (valore minimo di sicurezza)
-    const minDistance = 50; // Valore minimo per evitare collisioni, puoi regolarlo
+    const minDistance = 50;
     if (distance < minDistance) {
         distance = minDistance;
     }
 
-    const forceMagnitude = G * m1 * m2 / (distance * distance);
+    const forceMagnitude = G * mass1 * mass2 / (distance * distance);
     return {
         x: forceMagnitude * dx / distance,
         y: forceMagnitude * dy / distance
@@ -149,11 +157,13 @@ function updatePositionsAndVelocities(positions, velocities, dt) {
         { x: 0, y: 0 }
     ];
 
+    const masses = [m1, m2, m3];
+
     // Calculate gravitational forces between each pair of bodies
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
             if (i !== j) {
-                let force = gravitationalForce(positions[i], positions[j], m1, m2);
+                let force = gravitationalForce(positions[i], positions[j], masses[i], masses[j]);
                 forces[i].x += force.x;
                 forces[i].y += force.y;
             }
@@ -162,19 +172,32 @@ function updatePositionsAndVelocities(positions, velocities, dt) {
 
     // Update velocities and positions
     for (let i = 0; i < 3; i++) {
-        velocities[i].x += forces[i].x * dt / m1;
-        velocities[i].y += forces[i].y * dt / m1;
+        velocities[i].x += forces[i].x * dt / masses[i];
+        velocities[i].y += forces[i].y * dt / masses[i];
         positions[i].x += velocities[i].x * dt;
         positions[i].y += velocities[i].y * dt;
 
-        // Add boundary checks to keep bodies within canvas
-        if (positions[i].x < 0 || positions[i].x > canvas.width) {
-            velocities[i].x *= -0.8; // Bounce with some energy loss
-            positions[i].x = Math.max(0, Math.min(canvas.width, positions[i].x));
-        }
-        if (positions[i].y < 0 || positions[i].y > canvas.height) {
-            velocities[i].y *= -0.8; // Bounce with some energy loss
-            positions[i].y = Math.max(0, Math.min(canvas.height, positions[i].y));
+        // Centro dello schermo
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const maxDistance = Math.min(canvas.width, canvas.height) * 0.4; // 40% della dimensione minima
+
+        // Calcola la distanza dal centro
+        const dx = positions[i].x - centerX;
+        const dy = positions[i].y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Se il corpo è troppo lontano dal centro, applicare una forza di richiamo
+        if (distance > maxDistance) {
+            const angle = Math.atan2(dy, dx);
+            const correction = (distance - maxDistance) * 0.1; // Fattore di correzione graduale
+
+            positions[i].x = centerX + Math.cos(angle) * maxDistance;
+            positions[i].y = centerY + Math.sin(angle) * maxDistance;
+
+            // Inverti parzialmente la velocità e riducila
+            velocities[i].x *= -0.8;
+            velocities[i].y *= -0.8;
         }
     }
 }
@@ -203,9 +226,43 @@ function simulate() {
 
 // Handle window resize
 window.addEventListener('resize', () => {
+    // Salva le posizioni relative al centro
+    const relativePositions = positions.map(pos => ({
+        x: pos.x - canvas.width / 2,
+        y: pos.y - canvas.height / 2
+    }));
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight * 0.9;
-    drawStars(); // Redraw stars on resize
+
+    // Riposiziona i corpi relativamente al nuovo centro
+    positions = relativePositions.map(pos => ({
+        x: canvas.width / 2 + pos.x,
+        y: canvas.height / 2 + pos.y
+    }));
+
+    drawStars();
+});
+
+// Add event listeners for controls
+document.getElementById('gravity').addEventListener('input', (e) => {
+    G = parseInt(e.target.value);
+    document.getElementById('gravity-value').textContent = G;
+});
+
+document.getElementById('mass1').addEventListener('input', (e) => {
+    m1 = parseInt(e.target.value);
+    document.getElementById('mass1-value').textContent = m1;
+});
+
+document.getElementById('mass2').addEventListener('input', (e) => {
+    m2 = parseInt(e.target.value);
+    document.getElementById('mass2-value').textContent = m2;
+});
+
+document.getElementById('mass3').addEventListener('input', (e) => {
+    m3 = parseInt(e.target.value);
+    document.getElementById('mass3-value').textContent = m3;
 });
 
 // Initialize and start the simulation
